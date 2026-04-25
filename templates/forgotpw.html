@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Forgot Password | NGO System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .forgot-container {
+            max-width: 450px;
+            margin: 60px auto;
+            flex: 1;
+        }
+
+        .otp-input {
+            letter-spacing: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">NGO<span class="text-success">SYSTEM</span></a>
+        </div>
+    </nav>
+
+    <div class="container forgot-container">
+        <div class="card shadow p-4">
+            <div class="card-body">
+                <h3 class="fw-bold text-center mb-2">Reset Password</h3>
+                <p class="text-muted text-center mb-4">Verify your email to set a new password</p>
+
+                <form id="forgotForm">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Registered Email</label>
+                        <div class="input-group">
+                            <input id="emailInput" type="email" class="form-control form-control-lg"
+                                placeholder="yourname@email.com" required>
+                            <button class="btn btn-success px-3" type="button" id="sendOtpBtn" onclick="sendResetOTP()">Send
+                                OTP</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Enter 6-Digit OTP</label>
+                        <input id="otpInput" type="text" class="form-control form-control-lg otp-input" maxlength="6"
+                            placeholder="000000" disabled>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-muted">Code not arrived?</small>
+                            <small class="text-muted" id="timer"></small>
+                            <a href="javascript:void(0)" id="resendLink" onclick="sendResetOTP()"
+                                class="small text-success text-decoration-none fw-bold">Resend OTP</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" onclick="verifyResetOTP(event)" class="btn btn-dark btn-lg w-100 py-3 shadow-sm">
+                        Verify & Reset Password
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-0">Remembered your password? <a href="/signin"
+                            class="text-success fw-bold text-decoration-none">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container text-center text-md-start">
+            <div class="row">
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-success">NGO System</h5>
+                    <p class="small">Providing immediate support for those in crisis and a transparent platform for our
+                        community of donors.</p>
+                </div>
+
+                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-success">Quick Links</h5>
+                    <p><a href="index.html" class="text-white text-decoration-none small">Home</a></p>
+                    <p><a href="gallery.html" class="text-white text-decoration-none small">Gallery</a></p>
+                    <p><a href="help.html" class="text-white text-decoration-none small">Get Help</a></p>
+                </div>
+
+                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-success">Contact</h5>
+                    <p class="small"><i class="fas fa-home me-2"></i> West Bengal, India</p>
+                    <p class="small"><i class="fas fa-envelope me-2"></i> support@ngosystem.org</p>
+                </div>
+            </div>
+
+            <hr class="mb-4">
+
+            <div class="row align-items-center">
+                <div class="col-md-7 col-lg-8">
+                    <p class="small text-muted">© 2026 Copyright: <strong class="text-success">NGOSystem.org</strong>
+                    </p>
+                </div>
+                <div class="col-md-5 col-lg-4 text-center text-md-end">
+                    <a href="#" class="text-white me-3 fs-5"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-white me-3 fs-5"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3 fs-5"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let timerOn = false;
+
+        function startTimer(remaining) {
+            timerOn = true;
+            const resendBtn = document.getElementById('resendLink');
+            const sendBtn = document.getElementById('sendOtpBtn');
+
+            resendBtn.style.pointerEvents = "none";
+            resendBtn.classList.replace('text-success', 'text-muted');
+            sendBtn.disabled = true;
+
+            let m = Math.floor(remaining / 60);
+            let s = remaining % 60;
+            m = m < 10 ? '0' + m : m;
+            s = s < 10 ? '0' + s : s;
+
+            document.getElementById('timer').innerHTML = `Wait ${m}:${s}`;
+            remaining -= 1;
+
+            if (remaining >= 0 && timerOn) {
+                setTimeout(() => startTimer(remaining), 1000);
+                return;
+            }
+
+            timerOn = false;
+            document.getElementById('timer').innerHTML = "";
+            resendBtn.style.pointerEvents = "auto";
+            resendBtn.classList.replace('text-muted', 'text-success');
+        }
+
+        async function sendResetOTP() {
+            const email = document.getElementById('emailInput').value;
+            if (!email) return alert("Please enter email first");
+
+            try {
+                const response = await fetch('/request-reset-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    document.getElementById('otpInput').disabled = false;
+                    startTimer(60); 
+                } else {
+                    alert(data.error || "User not found or failed to send");
+                }
+            } catch (err) {
+                alert("Connection failed.");
+            }
+        }
+
+        async function verifyResetOTP(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const otp = document.getElementById('otpInput').value;
+
+            if (!otp) return alert("Please enter the OTP");
+
+            try {
+                const response = await fetch('/verify-reset-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, otp: otp })
+                });
+
+                const data = await response.json();
+                if (data.status === "success") {
+                    // Temporarily store reset token
+                    localStorage.setItem('password_reset_token', data.token);
+                    // Redirect to the actual password change form
+                    window.location.replace(`/reset-password-page?token=${data.token}`);
+                } else {
+                    alert(data.message);
+                    location.reload();
+                }
+            } catch (err) {
+                alert("Verification failed.");
+            }
+        }
+    </script>
+</body>
+
+</html>

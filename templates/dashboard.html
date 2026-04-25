@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard | NGO System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background: #212529;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: white;
+            background: #198754;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar p-3 shadow">
+        <h4 class="text-center fw-bold mb-4">NGO<span class="text-success">SYSTEM</span></h4>
+        <hr>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" onclick="showSection('profile')">
+                    <i class="fas fa-user-circle me-2"></i> My Account
+                </a>
+            </li>
+            <li class="nav-item position-relative">
+                <a class="nav-link" onclick="showSection('notifications')">
+                    <i class="fas fa-bell me-2"></i> Notifications
+                    <span id="notifDot" class="notification-badge bg-danger"></span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showSection('history')">
+                    <i class="fas fa-history me-2"></i> Contribution History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showSection('scoreboard')">
+                    <i class="fas fa-trophy me-2"></i> Leaderboard
+                </a>
+            </li>
+            <li class="nav-item mt-4">
+                <button class="btn btn-outline-danger w-100 fw-bold" onclick="signOut()">
+                    <i class="fas fa-sign-out-alt me-2"></i> Sign Out
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+
+        <section id="profile" class="dashboard-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">My Account</h2>
+                <button class="btn btn-dark btn-sm shadow-sm" onclick="goToSettings()"><i class="fas fa-cog me-1"></i>
+                    Settings</button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card stat-card shadow-sm p-4 text-center mb-4">
+                        <h5 class="fw-bold mb-0" id="displayFullName">Loading Name...</h5>
+                        <p class="text-muted small" id="displayProfession">Profession</p>
+                        <div class="bg-success text-white rounded-3 py-3 mt-2">
+                            <h6 class="text-uppercase small mb-1">Donor Score</h6>
+                            <h2 class="fw-bold mb-0">0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card shadow-sm p-4">
+                        <h5 class="fw-bold mb-4 border-bottom pb-2">Personal Information</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Full Name</label>
+                                <span class="fw-bold" id="infoName">—</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Phone Number</label>
+                                <span class="fw-bold" id="infoPhone">—</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Email Address</label>
+                                <span class="fw-bold" id="infoEmail">—</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Profession</label>
+                                <span class="fw-bold" id="infoProfession">—</span>
+                            </div>
+                            <div class="col-12">
+                                <label class="text-muted small d-block">Full Address</label>
+                                <span class="fw-bold" id="infoAddress">—</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">District</label>
+                                <span class="fw-bold" id="infoDistrict">—</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">PIN Code</label>
+                                <span class="fw-bold" id="infoPin">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="notifications" class="dashboard-section d-none">
+            <h2 class="fw-bold mb-4">Notifications</h2>
+            <div class="card shadow-sm p-4">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 fw-bold">Welcome to NGO System!</h6>
+                            <small class="text-muted">Today</small>
+                        </div>
+                        <p class="mb-1 text-muted">Thank you for joining our community. We are glad to have you here.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="history" class="dashboard-section d-none">
+            <h2 class="fw-bold mb-4">Contribution History</h2>
+            <div class="card shadow-sm p-4">
+                <p class="text-muted">No past contributions found. Your impact starts here!</p>
+            </div>
+        </section>
+
+        <section id="scoreboard" class="dashboard-section d-none">
+            <h2 class="fw-bold mb-4">Leaderboard</h2>
+            <div class="card shadow-sm overflow-hidden">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Rank</th>
+                            <th>Donor Name</th>
+                            <th>District</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <tr>
+                            <td colspan="4" class="text-center">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Section Navigation Logic
+        function showSection(sectionId) {
+            document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('d-none'));
+            document.getElementById(sectionId).classList.remove('d-none');
+
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            // Trigger leaderboard fetch only when that section is shown
+            if (sectionId === 'scoreboard') {
+                loadLeaderboard();
+            }
+        }
+
+        // Sign Out Logic
+        function signOut() {
+            localStorage.removeItem('donor_signup_auth_token');
+            localStorage.removeItem('donor_otp_auth_token');
+            sessionStorage.removeItem('donor_signup_auth_token');
+
+            alert("Logging you out...");
+            window.location.replace("/signin");
+        }
+
+        // Fetch User Data on Load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('donor_signup_auth_token') || sessionStorage.getItem('donor_signup_auth_token');
+
+            if (!token) {
+                window.location.replace("/signin");
+                return;
+            }
+
+            try {
+                const response = await fetch('/get-donor-profile', {
+                    method: 'GET',
+                    headers: { 'Authorization': token }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Map fetched data to UI
+                    document.getElementById('displayFullName').innerText = data.full_name;
+                    document.getElementById('infoName').innerText = data.full_name;
+                    document.getElementById('displayProfession').innerText = data.profession;
+                    document.getElementById('infoProfession').innerText = data.profession;
+                    document.getElementById('infoPhone').innerText = "+91 " + data.phone;
+                    document.getElementById('infoEmail').innerText = data.email;
+                    document.getElementById('infoAddress').innerText = data.address;
+                    document.getElementById('infoDistrict').innerText = data.district;
+                    document.getElementById('infoPin').innerText = data.pincode;
+
+                    // Profile pic remains default until you add your own logic later
+                }
+            } catch (err) {
+                console.error("Failed to load profile data", err);
+            }
+        });
+
+        function goToSettings() {
+            const token = localStorage.getItem('donor_signup_auth_token') ||
+                sessionStorage.getItem('donor_signup_auth_token');
+
+            if (!token) {
+                alert("Session expired. Please sign in again.");
+                window.location.replace("/signin");
+                return;
+            }
+
+            window.location.href = `/settings?token=${encodeURIComponent(token)}`;
+        }
+
+        async function loadLeaderboard() {
+            const tableBody = document.getElementById('leaderboardBody');
+
+            try {
+                const response = await fetch('/get-leaderboard');
+                const rawData = await response.json();
+
+                console.log("Raw:", rawData);
+
+                let donors;
+
+                if (Array.isArray(rawData)) {
+                    donors = rawData;
+                } else if (rawData.data) {
+                    donors = rawData.data;
+                } else if (rawData.donors) {
+                    donors = rawData.donors;
+                } else {
+                    donors = [rawData];  // ✅ handle single object
+                }
+
+                if (!donors.length) {
+                    tableBody.innerHTML = `<tr><td colspan="4">No data</td></tr>`;
+                    return;
+                }
+
+                donors.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+                let html = '';
+                donors.slice(0, 10).forEach((d, i) => {
+                    html += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${d.full_name}</td>
+                    <td>${d.district}</td>
+                    <td>${d.score}</td>
+                </tr>
+            `;
+                });
+
+                tableBody.innerHTML = html;
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
