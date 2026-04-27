@@ -5,7 +5,9 @@
 {% block extra_css %}
 <style>
 .join-hero {
-  background: linear-gradient(135deg, var(--green-dark) 0%, var(--navy) 100%);
+  background: linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),
+  url("{{ url_for('static', filename='donate.jpeg') }}");
+  background-size: cover;
   color: white; padding: 70px 24px; text-align: center;
 }
 .join-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
@@ -42,7 +44,7 @@
 
 {% block content %}
 <div class="confirm-wrap">
-  <div class="confirm-card">
+  <div class="confirm-card" style="background-color: #ebfeff;">
     <div class="confirm-icon">🤲</div>
     <h2>Would you like to donate?</h2>
     <p>

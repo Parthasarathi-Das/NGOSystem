@@ -603,6 +603,9 @@ def api_stats():
         "assignments": db.execute("SELECT COUNT(*) FROM member_assignment").fetchone()[0],
     })
 
+@app.route("/gallery")
+def gallery():
+    return render_template("gallery.html")
 
 # --------------------------------------------------------------------------- #
 #                             ERROR HANDLERS                                  #

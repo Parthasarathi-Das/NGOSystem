@@ -5,8 +5,10 @@
 {% block extra_css %}
 <style>
   .hero-landing {
-    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, var(--green-dark) 100%);
-    color: white;
+    background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),
+     url("{{ url_for('static', filename='home.jpeg') }}");
+    background-size: cover;
+    background-repeat: no-repeat;
     padding: 80px 24px;
     text-align: center;
   }
@@ -152,10 +154,10 @@
   <div>
     <h1>
       <!-- 🩷 -->
-      <b>H</b>
-      <b style="color:#4a7a0b;">O</b>
-      <b>P</b>
-      <b>E</b>
+      <b style="color: #ffffff;">H</b>
+      <b style="color:#ff2f2f;">O</b>
+      <b style="color: #ffffff;">P</b>
+      <b style="color: #ffffff;">E</b>
     </h1>
     <p>Connecting crisis-affected communities with the right people and resources — togather we make a difference</p>
     <div class="hero-btns">

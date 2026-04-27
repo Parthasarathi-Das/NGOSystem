@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+{% block title %}Gallery of Work · HOPE — NGO Unified System{% endblock %}
+{% block nav_gallery %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================================
+   Gallery of Work — HOPE (Pure CSS Implementation)
+   ============================================================ */
+
+/* ----- Hero Section ----- */
+.gallery-hero {
+  background: linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
+  url("{{ url_for('static', filename='background.jpeg') }}");
+  color: white;
+  padding: 72px 24px 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.gallery-hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,.06) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+.gallery-hero .eyebrow {
+  display: inline-block;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.9);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.gallery-hero h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+  position: relative;
+}
+.gallery-hero p {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,.82);
+  max-width: 640px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ----- Impact Stats ----- */
+.impact-strip {
+  background: white;
+  border-bottom: 1px solid var(--slate-200);
+  padding: 28px 24px;
+}
+.impact-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  text-align: center;
+}
+.impact-cell .impact-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+}
+.impact-cell .impact-lbl {
+  font-size: .82rem;
+  color: var(--slate-500);
+  margin-top: 6px;
+  letter-spacing: .04em;
+}
+
+/* ----- Filter bar ----- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 32px 24px 8px;
+}
+.filter-btn {
+  background: white;
+  border: 1.5px solid var(--slate-200);
+  color: var(--slate-600);
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-btn i { margin-right: 6px; }
+.filter-btn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+  transform: translateY(-1px);
+}
+.filter-btn.is-active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: white;
+}
+
+/* ----- Responsive Grid (Replacing Bootstrap) ----- */
+.gallery-section {
+  padding: 24px 24px 64px;
+  background: var(--slate-50);
+}
+.gallery-grid-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.gallery-card {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  cursor: pointer;
+}
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--slate-300);
+}
+.gallery-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--slate-100);
+}
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s;
+}
+.gallery-card:hover .gallery-thumb img { transform: scale(1.05); }
+
+.gallery-cat {
+  position: absolute;
+  top: 12px; left: 12px;
+  background: rgba(15,23,42,.78);
+  color: white;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+.gallery-cat.cat-relief    { background: rgba(220, 38, 38, .9); }
+.gallery-cat.cat-education { background: rgba(8,  145, 178, .9); }
+.gallery-cat.cat-medical   { background: rgba(22, 163, 74,  .9); }
+.gallery-cat.cat-shelter   { background: rgba(217, 119, 6,  .9); }
+.gallery-cat.cat-community { background: rgba(124, 58,  237, .9); }
+
+.gallery-body {
+  padding: 18px 18px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.gallery-body h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+.gallery-body p {
+  font-size: .88rem;
+  color: var(--slate-600);
+  line-height: 1.5;
+  margin: 0 0 14px;
+  flex: 1;
+}
+.gallery-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .78rem;
+  color: var(--slate-500);
+  border-top: 1px solid var(--slate-100);
+  padding-top: 10px;
+}
+
+/* ----- Lightbox / Custom Modal ----- */
+.custom-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  display: none; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.custom-modal.is-visible { display: flex; animation: fade-in .2s ease; }
+
+.modal-content-wrap {
+  background: white;
+  border-radius: var(--radius-xl);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: var(--shadow-xl);
+}
+.modal-close-btn {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: rgba(15,23,42,.65);
+  color: white;
+  border: none;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  z-index: 10;
+  cursor: pointer;
+  transition: background .2s;
+}
+.modal-close-btn:hover { background: var(--slate-900); }
+
+.modal-img-top {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--slate-100);
+}
+.modal-pad {
+  padding: 32px;
+}
+.modal-cat-tag {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--navy);
+  background: var(--cyan-soft);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.modal-pad h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--navy-dark);
+  margin-bottom: 8px;
+}
+.modal-meta-row {
+  display: flex;
+  gap: 20px;
+  color: var(--slate-500);
+  font-size: .9rem;
+  margin-bottom: 20px;
+}
+.modal-body-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--slate-700);
+}
+
+/* Empty State */
+.gallery-empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--slate-400);
+}
+.gallery-empty i { font-size: 3rem; margin-bottom: 16px; display: block; }
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Mobile Nudges */
+@media (max-width: 600px) {
+  .gallery-hero h1 { font-size: 2rem; }
+  .gallery-grid { grid-template-columns: 1fr; }
+  .modal-pad { padding: 24px; }
+  .modal-pad h2 { font-size: 1.4rem; }
+}
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="gallery-hero">
+  <span class="eyebrow"><i class="fa-solid fa-heart"></i> &nbsp; HOPE</span>
+  <h1>Gallery of Work</h1>
+  <p>
+    A look at the lives we've touched together. Every photo here tells a story
+    of crisis met with compassion.
+  </p>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="impact-strip">
+  <div class="impact-inner">
+    <div class="impact-cell">
+      <div class="impact-val">12,400+</div>
+      <div class="impact-lbl">Lives Touched</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-val">38</div>
+      <div class="impact-lbl">Districts Reached</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-val">1,820</div>
+      <div class="impact-lbl">Volunteers Mobilised</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-val">94</div>
+      <div class="impact-lbl">Active Projects</div>
+    </div>
+  </div>
+</section>
+
+<div class="filter-bar">
+  <button type="button" class="filter-btn is-active" data-filter="all">
+    <i class="fa-solid fa-layer-group"></i>All Stories
+  </button>
+  <button type="button" class="filter-btn" data-filter="relief">
+    <i class="fa-solid fa-hand-holding-heart"></i>Disaster Relief
+  </button>
+  <button type="button" class="filter-btn" data-filter="education">
+    <i class="fa-solid fa-graduation-cap"></i>Education
+  </button>
+  <button type="button" class="filter-btn" data-filter="medical">
+    <i class="fa-solid fa-stethoscope"></i>Medical
+  </button>
+  <button type="button" class="filter-btn" data-filter="shelter">
+    <i class="fa-solid fa-house-chimney"></i>Shelter
+  </button>
+  <button type="button" class="filter-btn" data-filter="community">
+    <i class="fa-solid fa-people-group"></i>Community
+  </button>
+</div>
+
+<section class="gallery-section">
+  <div class="gallery-grid-wrap">
+    <div class="gallery-grid" id="galleryGrid">
+      </div>
+    <div class="gallery-empty" id="galleryEmpty" style="display:none;">
+      <i class="fa-regular fa-folder-open"></i>
+      <p>No stories in this category yet — please check back soon.</p>
+    </div>
+  </div>
+</section>
+
+<div class="custom-modal" id="galleryModal">
+  <div class="modal-content-wrap">
+    <button type="button" class="modal-close-btn" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img src="" alt="" class="modal-img-top" id="modalImage">
+    <div class="modal-pad">
+      <span class="modal-cat-tag" id="modalCat">Category</span>
+      <h2 id="modalTitle">Title</h2>
+      <div class="modal-meta-row">
+        <span><i class="fa-solid fa-location-dot"></i> <span id="modalLoc"></span></span>
+        <span><i class="fa-regular fa-calendar"></i> <span id="modalDate"></span></span>
+      </div>
+      <p class="modal-body-text" id="modalBody"></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const GALLERY = [
+  {
+    id: "g1",
+    cat: "relief",
+    catLabel: "Disaster Relief",
+    title: "Cyclone Remal — emergency response in the Sundarbans",
+    summary: "Hot meals, drinking water and tarpaulin shelters delivered to 4,200+ displaced families within 48 hours.",
+    body: "When Cyclone Remal struck the Sundarbans, our 60-volunteer rapid-response team set up six community kitchens overnight. Over the following week we distributed 12,000 meals, 8,000 litres of safe drinking water, and emergency shelter kits to 4,200+ displaced families.",
+    location: "Sundarbans, West Bengal",
+    date: "May 2024",
+    image: "{{ url_for('static', filename='flood.jpeg') }}"
+  },
+  {
+    id: "g2",
+    cat: "education",
+    catLabel: "Education",
+    title: "Mobile classrooms in tea-garden communities",
+    summary: "A bus-classroom programme bringing literacy and numeracy lessons to 14 remote tea estates.",
+    body: "Our mobile classroom programme runs on two retrofitted minibuses that visit 14 remote tea-garden schools every fortnight. We cover literacy, numeracy and basic digital skills for over 600 children.",
+    location: "Dooars, North Bengal",
+    date: "Ongoing",
+    image: "{{ url_for('static', filename='books.jpeg') }}"
+  },
+  {
+    id: "g3",
+    cat: "medical",
+    catLabel: "Medical",
+    title: "Free monthly health camps in rural Birbhum",
+    summary: "Doctors, basic diagnostics and essential medicines, every second Sunday of the month.",
+    body: "Partnering with four district hospitals, HOPE runs a free monthly health camp circuit across eight gram panchayats in Birbhum. Each camp offers general check-ups and essential screenings.",
+    location: "Birbhum, West Bengal",
+    date: "Ongoing",
+    image: "{{ url_for('static', filename='medical.jpeg') }}"
+  },
+  {
+    id: "g4",
+    cat: "shelter",
+    catLabel: "Shelter",
+    title: "Rebuild Bengal — 120 homes restored",
+    summary: "Permanent housing rebuilds for families who lost everything in the 2023 floods.",
+    body: "After the 2023 floods, HOPE partnered with local masons to rebuild 120 permanent two-room houses on raised plinths designed to withstand future floods.",
+    location: "Murshidabad & Malda",
+    date: "2023 – 2024",
+    image: "{{ url_for('static', filename='blood.jpeg') }}"
+  },
+  {
+    id: "g5",
+    cat: "community",
+    catLabel: "Community",
+    title: "Women's livelihood collectives",
+    summary: "Six self-help groups running profitable handloom collectives across three districts.",
+    body: "Working alongside master weavers, HOPE helped form six women's self-help groups producing handloom saris. earnings have grown from ₹1,800/month to ₹6,400/month.",
+    location: "Nadia · Hooghly",
+    date: "Ongoing",
+    image: "{{ url_for('static', filename='cloth.jpeg') }}"
+  },
+  {
+    id: "g6",
+    cat: "education",
+    catLabel: "Education",
+    title: "STEM scholarships for first-generation girls",
+    summary: "Full tuition and laptop grants for 48 first-generation girl students entering engineering.",
+    body: "The HOPE STEM scholarship covers full tuition, books, and laptop for first-generation girl students in their first year of an engineering programme.",
+    location: "Statewide, West Bengal",
+    date: "2024–2028",
+    image: "{{ url_for('static', filename='food.jpeg') }}"
+  }
+];
+
+const grid = document.getElementById('galleryGrid');
+const empty = document.getElementById('galleryEmpty');
+const modal = document.getElementById('galleryModal');
+
+function renderGrid(filter = 'all') {
+  const items = GALLERY.filter(g => filter === 'all' || g.cat === filter);
+  grid.innerHTML = items.map(item => `
+    <article class="gallery-card" onclick="openLightbox('${item.id}')">
+      <div class="gallery-thumb">
+        <span class="gallery-cat cat-${item.cat}">${item.catLabel}</span>
+        <img src="${item.image}" alt="${item.title}" loading="lazy">
+      </div>
+      <div class="gallery-body">
+        <h3>${item.title}</h3>
+        <p>${item.summary}</p>
+        <div class="gallery-meta">
+          <span><i class="fa-solid fa-location-dot"></i> ${item.location}</span>
+          <span><i class="fa-regular fa-calendar"></i> ${item.date}</span>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  empty.style.display = items.length ? 'none' : 'block';
+}
+
+function openLightbox(id) {
+  const item = GALLERY.find(g => g.id === id);
+  if (!item) return;
+  document.getElementById('modalImage').src = item.image;
+  document.getElementById('modalTitle').textContent = item.title;
+  document.getElementById('modalCat').textContent = item.catLabel;
+  document.getElementById('modalLoc').textContent = item.location;
+  document.getElementById('modalDate').textContent = item.date;
+  document.getElementById('modalBody').textContent = item.body;
+  modal.classList.add('is-visible');
+  document.body.style.overflow = 'hidden'; // Prevent scroll
+}
+
+function closeLightbox() {
+  modal.classList.remove('is-visible');
+  document.body.style.overflow = '';
+}
+
+// Close button & Backdrop click
+modal.querySelector('.modal-close-btn').addEventListener('click', closeLightbox);
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) closeLightbox();
+});
+
+// Filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    renderGrid(btn.dataset.filter);
+  });
+});
+
+renderGrid('all');
+</script>
+{% endblock %}
