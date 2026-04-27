@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Donor Details · NGO Unified System{% endblock %}
+{% block nav_donate %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.donor-hero {
+  background: linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
+    url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&q=80&w=1200');
+  background-size:cover; background-position:center;
+  color:white; padding:56px 24px; text-align:center;
+}
+.donor-hero h1 { font-size:2rem; font-weight:800; }
+.donor-hero p  { color:rgba(255,255,255,.8); }
+.form-wrap { max-width:720px; margin:0 auto; padding:40px 24px; }
+.form-card {
+  background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);
+  padding:36px; border-top:5px solid var(--green);
+}
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.full { grid-column:1/-1; }
+label { display:block; font-weight:600; font-size:.88rem; color:var(--slate-700); margin-bottom:6px; }
+input,select,textarea {
+  width:100%; padding:10px 14px; border:1.5px solid var(--slate-200);
+  border-radius:var(--radius-md); font-size:.95rem; color:var(--slate-900);
+  transition:border-color .15s;
+}
+input:focus,select:focus,textarea:focus { outline:none; border-color:var(--green); }
+.submit-btn {
+  width:100%; padding:14px; background:var(--green); color:white;
+  border:none; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer;
+  margin-top:24px; transition:transform .15s;
+}
+.submit-btn:hover { transform:translateY(-2px); }
+.msg-box { display:none; padding:14px 18px; border-radius:var(--radius-md); margin-top:16px; font-weight:600; }
+.msg-ok  { background:var(--green-soft); color:var(--green-dark); }
+.msg-err { background:var(--red-soft); color:var(--red); }
+</style>
+{% endblock %}
+
+{% block hero %}
+<div class="donor-hero">
+  <h1>💛 Your Donation Details</h1>
+  <p>Tell us what you can contribute. We'll automatically match your resources to a crisis nearby.</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <div class="form-card">
+    <h2 style="font-weight:800;color:var(--navy);margin-bottom:24px;">Contact & Resource Information</h2>
+    <div class="form-grid">
+      <div>
+        <label>Full Name *</label>
+        <input type="text" id="full_name" placeholder="First Last" required>
+      </div>
+      <div>
+        <label>Email Address *</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+      </div>
+      <div>
+        <label>Phone Number *</label>
+        <input type="tel" id="phone" placeholder="XXXXX XXXXX" maxlength="10" required>
+      </div>
+      <div>
+        <label>District (WB Only) *</label>
+        <select id="district" required>
+          <option value="" disabled selected>Select District...</option>
+          {% for d in districts %}
+          <option>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="full">
+        <label>Full Address *</label>
+        <input type="text" id="address" placeholder="House No, Street, Area" required>
+      </div>
+      <div>
+        <label>Resource Type *</label>
+        <select id="resource_type" required>
+          <option value="" disabled selected>What can you offer?</option>
+          <option value="food">Food & Water</option>
+          <option value="medicine">Medicine & Medical Supplies</option>
+          <option value="clothing">Clothing & Blankets</option>
+          <option value="shelter">Shelter / Space</option>
+          <option value="money">Financial Aid</option>
+          <option value="transport">Transportation / Vehicles</option>
+          <option value="equipment">Equipment & Tools</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label>Quantity / Amount</label>
+        <input type="text" id="quantity" placeholder="e.g. 50 kg, ₹5000, 10 boxes">
+      </div>
+      <div class="full">
+        <label>Resource Description *</label>
+        <textarea id="resource_desc" rows="4" placeholder="Describe what you can provide in detail..."></textarea>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitDonor()">
+      💛 Submit Donation
+    </button>
+    <div class="msg-box msg-ok"  id="msgOk"></div>
+    <div class="msg-box msg-err" id="msgErr"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function submitDonor(){
+  const ok  = document.getElementById('msgOk');
+  const err = document.getElementById('msgErr');
+  ok.style.display = err.style.display = 'none';
+
+  const data = {
+    full_name:     document.getElementById('full_name').value.trim(),
+    email:         document.getElementById('email').value.trim(),
+    phone:         document.getElementById('phone').value.trim(),
+    district:      document.getElementById('district').value,
+    address:       document.getElementById('address').value.trim(),
+    resource_type: document.getElementById('resource_type').value,
+    quantity:      document.getElementById('quantity').value.trim() || '1',
+    resource_desc: document.getElementById('resource_desc').value.trim(),
+  };
+
+  if (!data.full_name || !data.email || !data.phone || !data.district
+      || !data.address || !data.resource_type || !data.resource_desc) {
+    err.textContent = 'Please fill in all required fields.';
+    err.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res  = await fetch('/submit-donor-info', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (res.ok) {
+      ok.textContent = json.message;
+      ok.style.display = 'block';
+    } else {
+      err.textContent = json.error || 'Submission failed.';
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = 'Network error. Please try again.';
+    err.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

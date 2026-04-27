@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Assignments · Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-hero { background:linear-gradient(135deg,var(--navy-dark),var(--navy)); color:white; padding:28px 24px; }
+.admin-hero-inner { max-width:1200px; margin:0 auto; }
+.admin-nav { background:white; border-bottom:1px solid var(--slate-200); }
+.admin-nav-inner { max-width:1200px; margin:0 auto; display:flex; gap:0; overflow-x:auto; }
+.a-nav-link { padding:14px 20px; font-weight:600; font-size:.9rem; color:var(--slate-600); border-bottom:3px solid transparent; white-space:nowrap; text-decoration:none; }
+.a-nav-link:hover,.a-nav-link.active { color:var(--navy); border-bottom-color:var(--navy); }
+.page-wrap { max-width:1200px; margin:0 auto; padding:28px 24px; }
+.badge { padding:4px 10px; border-radius:50px; font-size:.76rem; font-weight:700; }
+.badge-assigned  { background:var(--cyan-soft); color:#0369a1; }
+.badge-completed { background:var(--green-soft); color:var(--green-dark); }
+.tbl { width:100%; border-collapse:collapse; background:white; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
+.tbl th { background:var(--slate-900); color:white; padding:12px 14px; text-align:left; font-size:.82rem; font-weight:600; }
+.tbl td { padding:11px 14px; border-bottom:1px solid var(--slate-100); font-size:.85rem; vertical-align:middle; }
+.tbl tr:last-child td { border-bottom:none; }
+.score-bar-bg { background:var(--slate-100); border-radius:50px; height:6px; width:80px; display:inline-block; vertical-align:middle; margin-left:6px; }
+.score-bar-fill { height:100%; border-radius:50px; background:var(--green); }
+.action-btn { padding:5px 12px; border:none; border-radius:50px; font-size:.76rem; font-weight:700; cursor:pointer; }
+.msg-bar { padding:12px 16px; border-radius:var(--radius-md); font-weight:600; display:none; margin-bottom:16px; }
+.msg-ok  { background:var(--green-soft); color:var(--green-dark); }
+</style>
+{% endblock %}
+
+{% block hero %}
+<div class="admin-hero">
+  <div class="admin-hero-inner">
+    <h1 style="font-size:1.4rem;font-weight:800;margin:0;">📋 Member Assignments</h1>
+    <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.88rem;">Track which members are assigned to which crises.</p>
+  </div>
+</div>
+<div class="admin-nav">
+  <div class="admin-nav-inner">
+    <a class="a-nav-link" href="/admin">Dashboard</a>
+    <a class="a-nav-link" href="/admin/crises">Crisis Requests</a>
+    <a class="a-nav-link" href="/admin/donors">Donor Submissions</a>
+    <a class="a-nav-link" href="/admin/members">Members</a>
+    <a class="a-nav-link active" href="/admin/assignments">Assignments</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+  <div class="msg-bar msg-ok" id="msgBar"></div>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Crisis</th>
+        <th>Crisis District</th>
+        <th>Member</th>
+        <th>Member District</th>
+        <th>Match Score</th>
+        <th>Category / Urgency</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for a in assignments %}
+    <tr>
+      <td>{{ a.id }}</td>
+      <td>
+        <div style="font-weight:600;">{{ a.crisis_name }}</div>
+        <div style="color:var(--slate-400);font-size:.76rem;">Crisis #{{ a.crisis_id }}</div>
+      </td>
+      <td>{{ a.crisis_district }}</td>
+      <td>
+        <div style="font-weight:600;">{{ a.member_name }}</div>
+        <div style="color:var(--slate-400);font-size:.76rem;">Member #{{ a.member_id }}</div>
+      </td>
+      <td>{{ a.member_district }}</td>
+      <td>
+        <span style="font-weight:700;">{{ a.score }}/100</span>
+        <span class="score-bar-bg">
+          <span class="score-bar-fill" style="width:{{ a.score }}%;background:{% if a.score>=70 %}var(--green){% elif a.score>=40 %}var(--amber){% else %}var(--red){% endif %};"></span>
+        </span>
+      </td>
+      <td>{{ a.category|capitalize }} / {{ a.urgency }}/5</td>
+      <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+      <td>
+        {% if a.status == 'assigned' %}
+        <button class="action-btn" style="background:var(--green-soft);color:var(--green-dark);"
+          onclick="completeAssignment({{ a.id }})">✅ Complete</button>
+        {% else %}
+        <span style="color:var(--slate-400);font-size:.82rem;">—</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="9" style="text-align:center;color:var(--slate-400);padding:32px;">No assignments yet. Add members and run auto-allocation.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function completeAssignment(id){
+  const res  = await fetch(`/api/admin/assignments/${id}/status`,{
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'completed'})
+  });
+  const data = await res.json();
+  const bar = document.getElementById('msgBar');
+  bar.textContent = 'Assignment marked as completed.';
+  bar.style.display = 'block';
+  setTimeout(()=>location.reload(), 1800);
+}
+</script>
+{% endblock %}

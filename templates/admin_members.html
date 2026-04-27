@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Members · Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-hero { background:linear-gradient(135deg,var(--navy-dark),var(--navy)); color:white; padding:28px 24px; }
+.admin-hero-inner { max-width:1200px; margin:0 auto; }
+.admin-nav { background:white; border-bottom:1px solid var(--slate-200); }
+.admin-nav-inner { max-width:1200px; margin:0 auto; display:flex; gap:0; overflow-x:auto; }
+.a-nav-link { padding:14px 20px; font-weight:600; font-size:.9rem; color:var(--slate-600); border-bottom:3px solid transparent; white-space:nowrap; text-decoration:none; }
+.a-nav-link:hover,.a-nav-link.active { color:var(--navy); border-bottom-color:var(--navy); }
+.page-wrap { max-width:1200px; margin:0 auto; padding:28px 24px; display:grid; grid-template-columns:360px 1fr; gap:28px; }
+.add-card { background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); border:1px solid var(--slate-200); padding:24px; height:fit-content; border-top:4px solid var(--navy); }
+.add-card h3 { font-weight:800; color:var(--navy); margin-bottom:20px; }
+label { display:block; font-weight:600; font-size:.83rem; color:var(--slate-700); margin-bottom:5px; margin-top:14px; }
+input,select { width:100%; padding:9px 12px; border:1.5px solid var(--slate-200); border-radius:var(--radius-md); font-size:.9rem; }
+input:focus,select:focus { outline:none; border-color:var(--navy-light); }
+.skill-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
+.skill-chk { display:flex; align-items:center; gap:6px; font-size:.82rem; font-weight:500; color:var(--slate-700); }
+.skill-chk input[type=checkbox] { width:auto; }
+.add-btn { width:100%; margin-top:20px; padding:12px; background:var(--navy); color:white; border:none; border-radius:50px; font-weight:700; cursor:pointer; font-size:.95rem; }
+.add-btn:hover { background:var(--navy-dark); }
+.tbl { width:100%; border-collapse:collapse; background:white; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
+.tbl th { background:var(--slate-900); color:white; padding:12px 14px; text-align:left; font-size:.82rem; font-weight:600; }
+.tbl td { padding:11px 14px; border-bottom:1px solid var(--slate-100); font-size:.85rem; vertical-align:middle; }
+.tbl tr:last-child td { border-bottom:none; }
+.skill-tag { display:inline-block; padding:2px 8px; background:var(--cyan-soft); color:#0369a1; border-radius:50px; font-size:.72rem; font-weight:600; margin:1px; }
+.action-btn { padding:5px 11px; border:none; border-radius:50px; font-size:.76rem; font-weight:700; cursor:pointer; }
+.msg-bar { padding:12px 16px; border-radius:var(--radius-md); font-weight:600; display:none; margin-bottom:16px; grid-column:1/-1; }
+.msg-ok  { background:var(--green-soft); color:var(--green-dark); }
+.msg-err { background:var(--red-soft); color:var(--red); }
+@media(max-width:768px){ .page-wrap{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+
+{% block hero %}
+<div class="admin-hero">
+  <div class="admin-hero-inner">
+    <h1 style="font-size:1.4rem;font-weight:800;margin:0;">👥 Members</h1>
+    <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:.88rem;">Add and manage NGO team members used for crisis assignments.</p>
+  </div>
+</div>
+<div class="admin-nav">
+  <div class="admin-nav-inner">
+    <a class="a-nav-link" href="/admin">Dashboard</a>
+    <a class="a-nav-link" href="/admin/crises">Crisis Requests</a>
+    <a class="a-nav-link" href="/admin/donors">Donor Submissions</a>
+    <a class="a-nav-link active" href="/admin/members">Members</a>
+    <a class="a-nav-link" href="/admin/assignments">Assignments</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+  <div class="msg-bar msg-ok"  id="msgOk"></div>
+  <div class="msg-bar msg-err" id="msgErr"></div>
+
+  <!-- Add Member Form -->
+  <div class="add-card">
+    <h3>➕ Add New Member</h3>
+    <label>Full Name *</label>
+    <input type="text" id="m_name" placeholder="First Last">
+    <label>Email *</label>
+    <input type="email" id="m_email" placeholder="member@email.com">
+    <label>Phone *</label>
+    <input type="tel" id="m_phone" placeholder="XXXXX XXXXX">
+    <label>District *</label>
+    <select id="m_district">
+      <option value="" disabled selected>Select District...</option>
+      {% for d in districts %}
+      <option>{{ d }}</option>
+      {% endfor %}
+    </select>
+    <label>Availability</label>
+    <select id="m_avail">
+      <option value="flexible">Flexible</option>
+      <option value="weekdays">Weekdays</option>
+      <option value="weekends">Weekends</option>
+      <option value="evenings">Evenings</option>
+    </select>
+    <label>Skills *</label>
+    <div class="skill-grid">
+      {% for s in skills %}
+      <label class="skill-chk">
+        <input type="checkbox" class="skill-cb" value="{{ s }}">
+        {{ s.replace('_',' ')|capitalize }}
+      </label>
+      {% endfor %}
+    </div>
+    <button class="add-btn" onclick="addMember()">Add Member</button>
+  </div>
+
+  <!-- Members Table -->
+  <div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>District</th><th>Skills</th>
+          <th>Availability</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for m in members %}
+      <tr id="mrow-{{ m.id }}">
+        <td>{{ m.id }}</td>
+        <td>
+          <div style="font-weight:600;">{{ m.full_name }}</div>
+          <div style="color:var(--slate-400);font-size:.76rem;">{{ m.email }}</div>
+        </td>
+        <td>{{ m.district }}</td>
+        <td>
+          {% set parsed = m.skills | tojson %}
+          {% for sk in m.skills | from_json %}
+          <span class="skill-tag">{{ sk.replace('_',' ') }}</span>
+          {% endfor %}
+        </td>
+        <td>{{ m.availability }}</td>
+        <td>
+          {% if m.active %}
+          <span style="color:var(--green);font-weight:700;">● Active</span>
+          {% else %}
+          <span style="color:var(--slate-400);font-weight:700;">○ Inactive</span>
+          {% endif %}
+        </td>
+        <td style="white-space:nowrap;">
+          <button class="action-btn" style="background:var(--amber-soft);color:#92400e;"
+            onclick="toggleMember({{ m.id }})">
+            {{ '🔴 Deactivate' if m.active else '🟢 Activate' }}
+          </button>
+          <button class="action-btn" style="background:var(--red-soft);color:var(--red);margin-left:4px;"
+            onclick="deleteMember({{ m.id }})">🗑 Remove</button>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" style="text-align:center;color:var(--slate-400);padding:32px;">No members added yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showMsg(msg, isErr=false){
+  const el = document.getElementById(isErr?'msgErr':'msgOk');
+  el.textContent = msg; el.style.display='block';
+  setTimeout(()=>{ el.style.display='none'; if(!isErr) location.reload(); }, 2000);
+}
+
+async function addMember(){
+  const skills = [...document.querySelectorAll('.skill-cb:checked')].map(c=>c.value);
+  const data = {
+    full_name:    document.getElementById('m_name').value.trim(),
+    email:        document.getElementById('m_email').value.trim(),
+    phone:        document.getElementById('m_phone').value.trim(),
+    district:     document.getElementById('m_district').value,
+    availability: document.getElementById('m_avail').value,
+    skills,
+  };
+  if (!data.full_name||!data.email||!data.phone||!data.district||!skills.length){
+    showMsg('Please fill all fields and select at least one skill.', true);
+    return;
+  }
+  const res  = await fetch('/api/admin/members',{
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (res.ok) showMsg(json.message);
+  else showMsg(json.error||'Error.', true);
+}
+
+async function toggleMember(id){
+  const res  = await fetch(`/api/admin/members/${id}/toggle`,{method:'POST'});
+  const json = await res.json();
+  showMsg('Member status updated.');
+}
+
+async function deleteMember(id){
+  if (!confirm('Remove this member?')) return;
+  const res = await fetch(`/api/admin/members/${id}`,{method:'DELETE'});
+  showMsg('Member removed.');
+}
+</script>
+{% endblock %}

@@ -1,158 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Donate · NGO Unified System{% endblock %}
+{% block nav_donate %}active{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Donor Community | NGO System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f4f7f6;
-        }
+{% block extra_css %}
+<style>
+.join-hero {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--navy) 100%);
+  color: white; padding: 70px 24px; text-align: center;
+}
+.join-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
+.join-hero p  { color: rgba(255,255,255,.8); font-size: 1.1rem; }
+.confirm-wrap { max-width: 560px; margin: 60px auto; padding: 0 24px; }
+.confirm-card {
+  background: white; border-radius: var(--radius-xl); box-shadow: var(--shadow-xl);
+  padding: 48px 40px; text-align: center;
+}
+.confirm-icon { font-size: 3rem; margin-bottom: 20px; }
+.confirm-card h2 { font-size: 1.6rem; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
+.confirm-card p  { color: var(--slate-600); line-height: 1.6; margin-bottom: 32px; }
+.btn-yes {
+  display: block; width: 100%; padding: 14px; border: none; border-radius: 50px;
+  background: var(--green); color: white; font-size: 1rem; font-weight: 700; cursor: pointer;
+  margin-bottom: 12px; transition: transform .15s;
+}
+.btn-yes:hover { transform: translateY(-2px); }
+.btn-no  {
+  display: block; width: 100%; padding: 14px; border: 1.5px solid var(--slate-200);
+  border-radius: 50px; background: transparent; color: var(--slate-600);
+  font-size: 1rem; font-weight: 600; cursor: pointer;
+}
+.btn-no:hover { background: var(--slate-50); }
+</style>
+{% endblock %}
 
-        .auth-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&q=80&w=1200');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 80px 0;
-        }
+{% block hero %}
+<div class="join-hero">
+  <h1>💛 Make a Difference</h1>
+  <p>Your support — resources, supplies, or services — goes directly to those in need.</p>
+</div>
+{% endblock %}
 
-        /* Fixed missing Card & Icon styles */
-        .entry-card {
-            border: none;
-            border-radius: 15px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            height: 100%;
-        }
-
-        .entry-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .icon-circle {
-            width: 80px;
-            height: 80px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
-        <div class="container justify-content-between">
-            <a class="navbar-brand fw-bold" href="/">
-                NGO<span class="text-success">SYSTEM</span>
-            </a>
-
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link text-white-50" href="/">
-                        <i class="fas fa-arrow-left me-1"></i> Back to Website
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <header class="auth-header text-center">
-        <div class="container">
-            <h1 class="display-5 fw-bold">Join Our Donor Community</h1>
-            <p class="lead">Together, we can provide help where it is needed the most.</p>
-        </div>
-    </header>
-
-    <div class="container py-5 mt-5">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Welcome to the Donor Community</h2>
-            <p class="text-muted">Please choose how you would like to proceed</p>
-        </div>
-
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-5 col-lg-4">
-                <div class="card entry-card shadow-sm p-4 text-center" onclick="location.href='/register'">
-                    <div class="icon-circle bg-success text-white shadow-sm">
-                        <i class="fas fa-user-plus fa-2xl"></i>
-                    </div>
-                    <h4 class="fw-bold">New Donor</h4>
-                    <p class="text-muted">I want to join the community and start helping.</p>
-                    <button class="btn btn-success w-100 mt-3">Register via Email</button>
-                </div>
-            </div>
-
-            <div class="col-md-5 col-lg-4">
-                <div class="card entry-card shadow-sm p-4 text-center" onclick="location.href='/signin'">
-                    <div class="icon-circle bg-dark text-white shadow-sm">
-                        <i class="fas fa-sign-in-alt fa-2xl"></i>
-                    </div>
-                    <h4 class="fw-bold">Returning Donor</h4>
-                    <p class="text-muted">I already have an account and want to sign in.</p>
-                    <button class="btn btn-outline-dark w-100 mt-3">Sign In Now</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center mt-5">
-            <a href="/" class="text-decoration-none text-muted"><i class="fas fa-arrow-left me-2"></i>Back to Home</a>
-        </div>
-    </div>
-
-    <footer class="bg-dark text-white pt-5 pb-4">
-        <div class="container text-center text-md-start">
-            <div class="row">
-                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 fw-bold text-success">NGO System</h5>
-                    <p>Bridging the gap between compassionate donors and those in urgent need. Together, we create
-                        lasting change.</p>
-                </div>
-
-                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 fw-bold text-success">Resources</h5>
-                    <p><a href="/" class="text-white text-decoration-none">Home</a></p>
-                    <p><a href="gallery.html" class="text-white text-decoration-none">Our Work</a></p>
-                    <p><a href="help.html" class="text-white text-decoration-none">Get Help</a></p>
-                </div>
-
-                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 fw-bold text-success">Contact</h5>
-                    <p><i class="fas fa-home me-3"></i> West Bengal, India</p>
-                    <p><i class="fas fa-envelope me-3"></i> support@ngosystem.org</p>
-                    <p><i class="fas fa-phone me-3"></i> +91 1234567890</p>
-                </div>
-            </div>
-
-            <hr class="mb-4">
-
-            <div class="row align-items-center">
-                <div class="col-md-7 col-lg-8">
-                    <p>© 2026 Copyright: <strong class="text-success">NGOSystem.org</strong></p>
-                </div>
-                <div class="col-md-5 col-lg-4 text-center text-md-end">
-                    <ul class="list-unstyled list-inline">
-                        <li class="list-inline-item"><a href="#" class="text-white fs-4 mx-2"><i
-                                    class="fab fa-facebook"></i></a></li>
-                        <li class="list-inline-item"><a href="#" class="text-white fs-4 mx-2"><i
-                                    class="fab fa-twitter"></i></a></li>
-                        <li class="list-inline-item"><a href="#" class="text-white fs-4 mx-2"><i
-                                    class="fab fa-instagram"></i></a></li>
-                        <li class="list-inline-item"><a href="#" class="text-white fs-4 mx-2"><i
-                                    class="fab fa-linkedin"></i></a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+{% block content %}
+<div class="confirm-wrap">
+  <div class="confirm-card">
+    <div class="confirm-icon">🤲</div>
+    <h2>Would you like to donate?</h2>
+    <p>
+      By clicking <strong>Yes, I Want to Donate</strong>, you'll be taken to a short form to tell us what you can contribute and how we can reach you. Your donation will be automatically matched to a crisis in your area.
+    </p>
+    <a href="/donor-info" class="btn-yes">✅ Yes, I Want to Donate</a>
+    <a href="/"           class="btn-no">✖ Not Right Now</a>
+  </div>
+</div>
+{% endblock %}

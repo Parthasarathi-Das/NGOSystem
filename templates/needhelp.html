@@ -1,272 +1,185 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Request Help · NGO Unified System{% endblock %}
+{% block nav_help %}active{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reach Out for Help | NGO System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
+{% block extra_css %}
+<style>
+.help-hero {
+  background: linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
+    url('https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&q=80&w=1200');
+  background-size: cover; background-position: center;
+  color: white; padding: 60px 24px; text-align: center;
+}
+.help-hero h1 { font-size: 2rem; font-weight: 800; }
+.help-hero p  { color: rgba(255,255,255,.8); }
+.form-wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
+.form-card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 36px; border-top: 5px solid var(--amber); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.full { grid-column: 1 / -1; }
+label { display:block; font-weight:600; font-size:.88rem; color:var(--slate-700); margin-bottom:6px; }
+input,select,textarea {
+  width: 100%; padding: 10px 14px; border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-md); font-size: .95rem; color: var(--slate-900);
+  transition: border-color .15s;
+}
+input:focus,select:focus,textarea:focus { outline:none; border-color:var(--navy-light); }
+.urgency-row { display:flex; gap:10px; }
+.urgency-btn {
+  flex:1; padding:10px; border:1.5px solid var(--slate-200); border-radius:var(--radius-md);
+  background:var(--slate-50); cursor:pointer; font-weight:600; text-align:center; transition:all .15s;
+}
+.urgency-btn.sel { border-color:var(--red); background:var(--red-soft); color:var(--red); }
+.submit-btn {
+  width:100%; padding:14px; background:var(--amber); color:var(--slate-900);
+  border:none; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer;
+  margin-top:24px; transition:transform .15s;
+}
+.submit-btn:hover { transform:translateY(-2px); }
+.msg-box { display:none; padding:14px 18px; border-radius:var(--radius-md); margin-top:16px; font-weight:600; }
+.msg-ok  { background:var(--green-soft); color:var(--green-dark); }
+.msg-err { background:var(--red-soft); color:var(--red); }
+</style>
+{% endblock %}
 
-        .help-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&q=80&w=1200');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 60px 0;
-        }
+{% block hero %}
+<div class="help-hero">
+  <h1>🆘 Request Assistance</h1>
+  <p>Your safety is our priority. Provide accurate details — our system will auto-assign the right team members.</p>
+  <span style="background:rgba(255,50,50,.4);padding:6px 16px;border-radius:50px;font-size:.85rem;">
+    ⚠️ Available for West Bengal districts only
+  </span>
+</div>
+{% endblock %}
 
-        .form-card {
-            border-top: 5px solid #ffc107;
-        }
-    </style>
-</head>
+{% block content %}
+<div class="form-wrap">
+  <div class="form-card">
+    <h2 style="font-weight:800;color:var(--navy);margin-bottom:24px;">Crisis Information</h2>
 
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">NGO<span class="text-success">SYSTEM</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/#about">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/gallery">Gallery of Works</a></li>
-                    <li class="nav-item"><a class="nav-link active text-warning fw-bold" href="/needhelp">Reach Out for
-                            Help</a></li>
-                </ul>
-            </div>
+    <div class="form-grid">
+      <div>
+        <label>Full Name *</label>
+        <input type="text" id="fullName" placeholder="First Last" required>
+      </div>
+      <div>
+        <label>Phone Number *</label>
+        <input type="tel" id="phone" placeholder="XXXXX XXXXX" maxlength="10" required>
+      </div>
+      <div class="full">
+        <label>Complete Address *</label>
+        <input type="text" id="address" placeholder="House No, Street, Landmark" required>
+      </div>
+      <div>
+        <label>District (WB Only) *</label>
+        <select id="district" required>
+          <option value="" disabled selected>Select District...</option>
+          {% for d in districts %}
+          <option>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>PIN Code *</label>
+        <input type="text" id="pincode" placeholder="7XXXXX" maxlength="6" required>
+      </div>
+      <div>
+        <label>Crisis Category *</label>
+        <select id="category" required>
+          <option value="" disabled selected>Select Category...</option>
+          {% for c in categories %}
+          <option value="{{ c }}">{{ c|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>People Affected</label>
+        <input type="number" id="people_affected" value="1" min="1" max="10000">
+      </div>
+      <div class="full">
+        <label>Urgency Level *</label>
+        <div class="urgency-row" id="urgencyRow">
+          <div class="urgency-btn" data-val="1">1 - Low</div>
+          <div class="urgency-btn" data-val="2">2 - Moderate</div>
+          <div class="urgency-btn sel" data-val="3">3 - High</div>
+          <div class="urgency-btn" data-val="4">4 - Critical</div>
+          <div class="urgency-btn" data-val="5">5 - Extreme</div>
         </div>
-    </nav>
+        <input type="hidden" id="urgency" value="3">
+      </div>
+      <div class="full">
+        <label>Describe Your Crisis *</label>
+        <textarea id="crisis" rows="5" placeholder="Explain your situation in detail..."></textarea>
+      </div>
+    </div>
 
-    <header class="help-header text-center">
-        <div class="container">
-            <h1 class="display-5 fw-bold">Request Assistance</h1>
-            <p class="lead">Your safety is our priority. Please provide your details accurately.</p>
-            <div class="badge bg-danger p-2 px-3">
-                <i class="fas fa-info-circle me-2"></i>Help is available throughout West Bengal only.
-            </div>
-        </div>
-    </header>
+    <button class="submit-btn" onclick="submitCrisis()">
+      🆘 Submit Crisis Request
+    </button>
+    <div class="msg-box msg-ok"  id="msgOk"></div>
+    <div class="msg-box msg-err" id="msgErr"></div>
+  </div>
+</div>
+{% endblock %}
 
-    <section class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm border-0 form-card p-4">
-                        <div class="card-body">
-                            <h3 class="mb-4 fw-bold">Personal & Crisis Information</h3>
-                            <form action="#" method="POST">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Full Name</label>
-                                        <input type="text" id="fullName" class="form-control bg-light"
-                                            placeholder="First-name Last-Name" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Phone Number</label>
-                                        <input type="tel" id="phone" class="form-control bg-light"
-                                            placeholder="XXXXX XXXXX" maxlength="10" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Complete Address</label>
-                                        <input type="text" id="address" class="form-control bg-light"
-                                            placeholder="House No, Street, Landmark" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">District (WB Only)</label>
-                                        <select id="district" class="form-select bg-light" required>
-                                            <option selected disabled value="">Choose District...</option>
-                                            <option>Kolkata</option>
-                                            <option>North 24 Parganas</option>
-                                            <option>South 24 Parganas</option>
-                                            <option>Malda</option>
-                                            <option>Darjeeling</option>
-                                            <option>Howrah</option>
-                                            <option>Hooghly</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">PIN Number</label>
-                                        <input type="text" id="pincode" class="form-control bg-light"
-                                            placeholder="7XXXXX" maxlength="6" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Describe Your Crisis</label>
-                                        <textarea id="crisis" class="form-control bg-light" rows="5"
-                                            placeholder="Please describe the situation so we can understand how to best help you..."
-                                            required></textarea>
-                                    </div>
+{% block extra_js %}
+<script>
+// Urgency selector
+document.getElementById('urgencyRow').addEventListener('click', e=>{
+  const btn = e.target.closest('.urgency-btn');
+  if (!btn) return;
+  document.querySelectorAll('.urgency-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('urgency').value = btn.dataset.val;
+});
 
-                                    <!-- <div class="col-12 mt-4">
-                                        <div class="p-3 border rounded bg-light d-flex align-items-center justify-content-between">
-                                            <span><i class="fas fa-shield-alt me-2 text-muted"></i> Security Verification</span>
-                                            <div class="bg-white border p-2 px-4 fw-bold">1 + 5 = ?</div>
-                                            <input type="text" class="form-control w-25" placeholder="Answer" required>
-                                        </div>
-                                        <small class="text-muted">Captcha will be handled by backend validation later.</small>
-                                    </div> -->
+const loadStart = Date.now();
 
-                                    <div class="col-12 mt-4">
-                                        <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold shadow-sm">
-                                            <i class="fas fa-paper-plane me-2"></i>Submit Request for Help
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+async function submitCrisis(){
+  const ok  = document.getElementById('msgOk');
+  const err = document.getElementById('msgErr');
+  ok.style.display = err.style.display = 'none';
 
-                    <div class="mt-4 text-center">
-                        <p class="text-muted small">
-                            <i class="fas fa-lock me-1"></i> Your information is encrypted and only visible to our
-                            emergency response team.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  const fields = {
+    fullName: document.getElementById('fullName').value.trim(),
+    phone:    document.getElementById('phone').value.trim(),
+    address:  document.getElementById('address').value.trim(),
+    district: document.getElementById('district').value,
+    pincode:  document.getElementById('pincode').value.trim(),
+    category: document.getElementById('category').value,
+    crisis:   document.getElementById('crisis').value.trim(),
+    urgency:  document.getElementById('urgency').value,
+    people_affected: document.getElementById('people_affected').value,
+    behavioralMetrics: {
+      loadTime: (Date.now() - loadStart) / 1000,
+      automationFlag: false,
+    }
+  };
 
-    <footer class="bg-dark text-white pt-5 pb-4">
-        <div class="container text-center text-md-start">
-            <div class="row text-center text-md-start">
+  if (!fields.fullName || !fields.phone || !fields.address || !fields.district
+      || !fields.pincode || !fields.category || !fields.crisis) {
+    err.textContent = 'Please fill in all required fields.';
+    err.style.display = 'block';
+    return;
+  }
 
-                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 fw-bold text-success">NGO System</h5>
-                    <p>Bridging the gap between compassionate donors and those in urgent need. Together, we create
-                        lasting change and provide a shield for the vulnerable.</p>
-                </div>
-
-                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 fw-bold text-success">Resources</h5>
-                    <p><a href="/" class="text-white text-decoration-none">Home</a></p>
-                    <p><a href="/gallery" class="text-white text-decoration-none">Our Work</a></p>
-                    <p><a href="/needhelp" class="text-white text-decoration-none">Get Help</a></p>
-                </div>
-
-                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 fw-bold text-success">Contact</h5>
-                    <p><i class="fas fa-home me-3"></i> West Bengal, India</p>
-                    <p><i class="fas fa-envelope me-3"></i> support@ngosystem.org</p>
-                    <p><i class="fas fa-phone me-3"></i> +91 1234567890</p>
-                </div>
-
-            </div>
-
-            <hr class="mb-4">
-
-            <div class="row align-items-center">
-                <div class="col-md-7 col-lg-8">
-                    <p>© 2026 Copyright: <strong class="text-success">NGOSystem.org</strong></p>
-                </div>
-
-                <div class="col-md-5 col-lg-4">
-                    <div class="text-center text-md-end">
-                        <ul class="list-unstyled list-inline">
-                            <li class="list-inline-item">
-                                <a href="#" class="btn-floating btn-sm text-white" style="font-size: 23px;"><i
-                                        class="fab fa-facebook"></i></a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="btn-floating btn-sm text-white" style="font-size: 23px;"><i
-                                        class="fab fa-twitter"></i></a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="btn-floating btn-sm text-white" style="font-size: 23px;"><i
-                                        class="fab fa-instagram"></i></a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="btn-floating btn-sm text-white" style="font-size: 23px;"><i
-                                        class="fab fa-linkedin-in"></i></a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="btn-floating btn-sm text-white" style="font-size: 23px;"><i
-                                        class="fab fa-youtube"></i></a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const pageLoadTime = Date.now();
-        let mouseMoved = false;
-
-        window.addEventListener('mousemove', () => { mouseMoved = true; }, { once: true });
-
-        document.querySelector('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-
-            const phone = document.getElementById('phone').value.trim();
-            const pincod = document.getElementById('pincode').value.trim();
-
-            const phoneRegex = /^[6-9]\d{9}$/;
-            if (!phoneRegex.test(phone)) {
-                alert("Please enter a valid 10-digit phone number starting with 6, 7, 8, or 9.");
-                return;
-            }
-
-            const pinRegex = /^7\d{5}$/;
-            if (!pinRegex.test(pincod)) {
-
-                alert("Please enter a valid 6-digit Pincode starting with 7 (West Bengal region).");
-                return;
-            }
-
-            const timeOnPage = (Date.now() - pageLoadTime) / 1000;
-            const isAutomated = navigator.webdriver;
-
-            if (isAutomated || timeOnPage < 5) {
-                alert("Submission denied due to automated or rapid activity.");
-                return;
-            }
-
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                phone: phone,
-                address: document.getElementById('address').value,
-                district: document.getElementById('district').value,
-                pincode: pincod,
-                crisis: document.getElementById('crisis').value,
-                behavioralMetrics: {
-                    loadTime: timeOnPage,
-                    hasMovedMouse: mouseMoved,
-                    automationFlag: isAutomated
-                }
-            };
-
-            try {
-                const response = await fetch('/submit-crisis', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    form.reset();
-                } else {
-                    alert(result.error || "Submission failed");
-                }
-            } catch (err) {
-                console.error("Connection Error:", err);
-                alert("Unable to reach the server.");
-            }
-        });
-    </script>
-</body>
-
-</html>
+  try {
+    const res  = await fetch('/submit-crisis', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(fields),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      ok.textContent = data.message;
+      ok.style.display = 'block';
+      document.querySelector('.form-card form') && document.querySelector('.form-card form').reset();
+    } else {
+      err.textContent = data.error || 'Submission failed.';
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = 'Network error. Please try again.';
+    err.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

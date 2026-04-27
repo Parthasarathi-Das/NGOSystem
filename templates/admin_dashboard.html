@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · NGO Unified System{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-hero {
+  background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+  color: white; padding: 36px 24px;
+}
+.admin-hero-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.admin-hero h1 { font-size:1.6rem; font-weight:800; margin:0; }
+.admin-hero p  { color:rgba(255,255,255,.7); margin:4px 0 0; font-size:.9rem; }
+.alloc-btn {
+  padding:12px 24px; background:var(--amber); color:var(--slate-900);
+  border:none; border-radius:50px; font-weight:700; cursor:pointer;
+  font-size:.95rem; transition:transform .15s;
+}
+.alloc-btn:hover { transform:translateY(-2px); }
+
+.admin-nav { background:white; border-bottom:1px solid var(--slate-200); }
+.admin-nav-inner { max-width:1200px; margin:0 auto; display:flex; gap:0; overflow-x:auto; }
+.a-nav-link {
+  padding:14px 20px; font-weight:600; font-size:.9rem; color:var(--slate-600);
+  border-bottom:3px solid transparent; white-space:nowrap; text-decoration:none;
+  transition:color .15s;
+}
+.a-nav-link:hover, .a-nav-link.active { color:var(--navy); border-bottom-color:var(--navy); }
+
+.dash-wrap { max-width:1200px; margin:0 auto; padding:32px 24px; }
+
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:32px; }
+.stat-card {
+  background:white; border-radius:var(--radius-lg); padding:20px 18px;
+  box-shadow:var(--shadow-sm); border:1px solid var(--slate-200); text-align:center;
+}
+.stat-card .num { font-size:2rem; font-weight:800; }
+.stat-card .lbl { font-size:.8rem; color:var(--slate-500); margin-top:4px; }
+
+.alert-box { padding:14px 18px; border-radius:var(--radius-md); font-weight:600; display:none; margin-bottom:20px; }
+.alert-ok  { background:var(--green-soft); color:var(--green-dark); }
+.alert-err { background:var(--red-soft); color:var(--red); }
+</style>
+{% endblock %}
+
+{% block hero %}
+<div class="admin-hero">
+  <div class="admin-hero-inner">
+    <div>
+      <h1>🏢 NGO Admin Panel</h1>
+      <p>Manage crisis requests, donor submissions, members, and allocations.</p>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <button class="alloc-btn" onclick="runAllocation()">⚡ Run Auto-Allocation</button>
+      <a href="/admin/logout" style="color:rgba(255,255,255,.6);font-size:.88rem;">Logout →</a>
+    </div>
+  </div>
+</div>
+<div class="admin-nav">
+  <div class="admin-nav-inner">
+    <a class="a-nav-link active" href="/admin">Dashboard</a>
+    <a class="a-nav-link" href="/admin/crises">Crisis Requests</a>
+    <a class="a-nav-link" href="/admin/donors">Donor Submissions</a>
+    <a class="a-nav-link" href="/admin/members">Members</a>
+    <a class="a-nav-link" href="/admin/assignments">Assignments</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dash-wrap">
+  <div class="alert-box alert-ok"  id="alertOk"></div>
+  <div class="alert-box alert-err" id="alertErr"></div>
+
+  <div class="stats-grid">
+    <div class="stat-card" style="border-top:4px solid var(--red)">
+      <div class="num" style="color:var(--red)">{{ stats.crises_total }}</div>
+      <div class="lbl">Total Crises</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--amber)">
+      <div class="num" style="color:var(--amber)">{{ stats.crises_pending }}</div>
+      <div class="lbl">Pending Crises</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--cyan)">
+      <div class="num" style="color:var(--cyan)">{{ stats.crises_assigned }}</div>
+      <div class="lbl">Assigned Crises</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--green)">
+      <div class="num" style="color:var(--green)">{{ stats.crises_resolved }}</div>
+      <div class="lbl">Resolved</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--purple)">
+      <div class="num" style="color:var(--purple)">{{ stats.donors_total }}</div>
+      <div class="lbl">Donor Submissions</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--amber)">
+      <div class="num" style="color:var(--amber)">{{ stats.donors_pending }}</div>
+      <div class="lbl">Unallocated Donations</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--navy)">
+      <div class="num" style="color:var(--navy)">{{ stats.members_active }}</div>
+      <div class="lbl">Active Members</div>
+    </div>
+    <div class="stat-card" style="border-top:4px solid var(--green)">
+      <div class="num" style="color:var(--green)">{{ stats.assignments }}</div>
+      <div class="lbl">Total Assignments</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;flex-wrap:wrap;">
+    <div style="background:white;border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm);border:1px solid var(--slate-200);">
+      <h3 style="font-weight:700;color:var(--navy);margin-bottom:16px;">Quick Actions</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="/admin/crises"  style="padding:12px 16px;background:var(--red-soft);color:var(--red);border-radius:var(--radius-md);font-weight:600;text-align:center;">
+          🆘 View All Crisis Requests ({{ stats.crises_pending }} pending)
+        </a>
+        <a href="/admin/donors"  style="padding:12px 16px;background:var(--amber-soft);color:#92400e;border-radius:var(--radius-md);font-weight:600;text-align:center;">
+          💛 View Donor Submissions ({{ stats.donors_pending }} unallocated)
+        </a>
+        <a href="/admin/members" style="padding:12px 16px;background:var(--cyan-soft);color:#0369a1;border-radius:var(--radius-md);font-weight:600;text-align:center;">
+          👥 Manage Members ({{ stats.members_total }} total)
+        </a>
+        <a href="/admin/assignments" style="padding:12px 16px;background:var(--green-soft);color:var(--green-dark);border-radius:var(--radius-md);font-weight:600;text-align:center;">
+          📋 View All Assignments ({{ stats.assignments }} total)
+        </a>
+      </div>
+    </div>
+    <div style="background:white;border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm);border:1px solid var(--slate-200);">
+      <h3 style="font-weight:700;color:var(--navy);margin-bottom:16px;">⚡ Auto-Allocation Engine</h3>
+      <p style="color:var(--slate-600);font-size:.9rem;line-height:1.6;margin-bottom:16px;">
+        The system automatically matches members to crises based on <strong>district</strong> and <strong>skills</strong>, and allocates donor resources to open crises in nearby districts.
+      </p>
+      <div style="background:var(--slate-50);border-radius:var(--radius-md);padding:16px;font-size:.85rem;color:var(--slate-600);">
+        <div style="margin-bottom:8px;">🏘️ <strong>District match</strong> → 40 pts</div>
+        <div style="margin-bottom:8px;">🛠️ <strong>Skill overlap</strong> → 40 pts</div>
+        <div>⚠️ <strong>Urgency boost</strong> → 20 pts</div>
+      </div>
+      <button class="alloc-btn" onclick="runAllocation()" style="margin-top:16px;width:100%;">
+        ⚡ Run Auto-Allocation Now
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function runAllocation(){
+  const ok  = document.getElementById('alertOk');
+  const err = document.getElementById('alertErr');
+  ok.style.display = err.style.display = 'none';
+  try {
+    const res  = await fetch('/api/admin/run-allocation', {method:'POST'});
+    const data = await res.json();
+    if (res.ok) {
+      ok.textContent = data.message;
+      ok.style.display = 'block';
+      setTimeout(()=>location.reload(), 2000);
+    } else {
+      err.textContent = data.error || 'Allocation failed.';
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = 'Network error.';
+    err.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}
