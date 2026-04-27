@@ -5,8 +5,8 @@
 {% block extra_css %}
 <style>
 .help-hero {
-  background: linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
-  url("{{ url_for('static', filename='home.jpeg') }}");
+  background: linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)),
+  url("{{ url_for('static', filename='needfull.jpeg') }}");
   background-size: cover; background-position: center;
   color: white; padding: 60px 24px; text-align: center;
 }
@@ -53,7 +53,7 @@ input:focus,select:focus,textarea:focus { outline:none; border-color:var(--navy-
 
 {% block content %}
 <div class="form-wrap">
-  <div class="form-card">
+  <div class="form-card" style="background-color: #fdefff;">
     <h2 style="font-weight:800;color:var(--navy);margin-bottom:24px;">Crisis Information</h2>
 
     <div class="form-grid">
